@@ -25,8 +25,46 @@ class Product(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     expiration_date = Column(Float, nullable=True)
     date_added = Column(Date)
+    is_consumed = Column(Boolean, default=False)
+    is_discarded = Column(Boolean, default=False)
     user = relationship("User", back_populates="products")
     vitamins = relationship("ProductVitamin", back_populates="product")
+
+class Vitamin(Base):
+    __tablename__ = "vitamins"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(String)
+    products = relationship("ProductVitamin", back_populates="vitamin")
+
+# SQLAlchemy Model: ProductVitamin
+class ProductVitamin(Base):
+    __tablename__ = "product_vitamins"
+    product_id = Column(Integer, ForeignKey("products.id"), primary_key=True)
+    vitamin_id = Column(Integer, ForeignKey("vitamins.id"), primary_key=True)
+    amount_mg = Column(Float)
+    product = relationship("Product", back_populates="vitamins")
+    vitamin = relationship("Vitamin", back_populates="products")
+
+# SQLAlchemy Model: UserVitaminStatus
+class UserVitaminStatus(Base):
+    __tablename__ = "user_vitamin_status"
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    vitamin_id = Column(Integer, ForeignKey("vitamins.id"), primary_key=True)
+    current_level = Column(Float)
+    recommended_level = Column(Float)
+    user = relationship("User", back_populates="vitamin_status")
+    vitamin = relationship("Vitamin")
+
+# SQLAlchemy Model: Recipe
+class Recipe(Base):
+    __tablename__ = "recipes"
+    id = Column(Integer, primary_key=True, index=True)
+    yemek = Column(String, index=True)
+    mutfagi = Column(String)
+    sure = Column(Integer)
+    malzeme = Column(MutableList.as_mutable(String))
+    yapilisi = Column(String)
 
 
 # Pydantic Model: ProductBase (JSON çıktısı için)
